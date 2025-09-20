@@ -1,0 +1,16 @@
+general_settings:
+  store_model_in_db: true
+  store_prompts_in_spend-logs: true
+
+model_list:
+  - model_name: openai-oss
+    litellm_params:
+      model: openai/gpt-oss-120b:free
+      api_base: https://openrouter.ai/api/v1
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: gemini/gemini-pro
+    litellm_params:
+      model: gemini-pro
+      api_base: https://us-central1-aiplatform.googleapis.com/v1/projects/gen-lang-client-0227487895/locations/us-central1/publishers/google/models/gemini-pro:predict
+      api_key: os.environ/GEMINI_API_KEY

@@ -1,0 +1,37 @@
+services:
+
+  server:
+    build: ./fastapi
+    ports:
+      - 8000:80
+    env_file:
+      - ./fastapi/.env
+
+  litellm:
+    container_name: litellm
+    build: 
+      context: ./litellm
+      dockerfile: Dockerfile
+    command: 
+      - "--config=./config.yaml"
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./litellm/.env
+    depends_on:
+      - postgres
+    
+  postgres:
+    image: postgres:13.22
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
