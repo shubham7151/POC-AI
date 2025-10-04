@@ -1,0 +1,24 @@
+services:
+  chatbot:
+    container_name: chatbot
+    build: ./chatbot
+    ports:
+      - 8000:8100
+    env_file:
+      - ./chatbot/.env
+    
+  
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres_user
+      POSTGRES_PASSWORD: postgres_pass
+      POSTGRES_DB: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:

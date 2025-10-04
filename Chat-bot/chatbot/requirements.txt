@@ -1,0 +1,8 @@
+fastapi[standard]
+pydantic-settings
+uvicorn[standard]
+requests
+psycopg2-binary
+sqlalchemy
+langchain
+langchain_google_genai
