@@ -6,6 +6,7 @@ class NewChat(BaseModel):
 class NewChatResponse(BaseModel):
     session_id: str
 
-class UserMessage(BaseModel):
+class Message(BaseModel):
     session_id: str
-    message: str
+    content: str
+
