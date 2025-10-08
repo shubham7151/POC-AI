@@ -1,0 +1,9 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: "genai-play"
+spec:
+  type: "Service"
+  lifecycle: experimental
+  owner: "GEN AI"
+  system: "system:undecided"

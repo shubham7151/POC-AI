@@ -1,0 +1,2 @@
+# Prevent create_table.sh from being converted from LF to CRLF
+create_table.sh text eol=lf

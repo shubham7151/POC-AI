@@ -1,0 +1,69 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: genai_db
+      POSTGRES_USER: genai_user
+      POSTGRES_PASSWORD: genai_pass
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  web:
+    container_name: backend
+    build: ./backend
+    depends_on:
+      - db
+    environment:
+      DB_NAME: genai_db
+      DB_USER: genai_user
+      DB_PASSWORD: genai_pass
+      DB_HOST: db
+      DB_PORT: 5432
+    ports:
+      - "8001:8001"
+    command: uvicorn main:app --host 0.0.0.0 --port 8001
+  agent:
+    build: ./Learning-Agent
+    depends_on:
+      - db
+    environment:
+      Base_URL: http://backend:8001/
+      API_KEY: <Token>
+    ports:
+      - "8002:8002"
+    command: uvicorn main:app --host 0.0.0.0 --port 8002
+  db-init:
+      build:
+        context: ./backend
+        dockerfile: Dockerfile.init
+      depends_on:
+        - db
+      environment:
+        DB_NAME: genai_db
+        DB_USER: genai_user
+        DB_PASSWORD: genai_pass
+        DB_HOST: db
+        DB_PORT: 5432
+      entrypoint: ["/bin/bash", "create_table.sh", "genai_db", "genai_user", "genai_pass", "db", "5432"]
+  litellm:
+    container_name: litellm
+    image: ghcr.io/berriai/litellm:main-v1.63.11-stable
+    volumes:
+      - ./litellm/litellm_config.yaml:/app/config.yaml
+    command:
+      - "--config=./config.yaml"
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./litellm/.env
+    environment:
+        DATABASE_URL: "postgresql://genai_user:genai_pass@db:5432/litellm"
+        STORE_MODEL_IN_DB: "True" # allows adding models to proxy via UI
+
+volumes:
+  postgres_data:
+
+

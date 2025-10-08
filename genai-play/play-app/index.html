@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            line-height: 1.4;
+            max-width: 400px;
+            margin: 0 auto;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .header {
+            background: #f8f9fa;
+            padding: 20px 20px 0;
+        }
+
+        .time {
+            background: #34d27a;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .welcome {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .name {
+            color: #e91e63;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+        .total-section {
+            margin-bottom: 30px;
+        }
+
+        .accounts-label {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .total-amount {
+            font-size: 36px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .account-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .account-card.clickable {
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-top: 3px solid #e91e63;
+        }
+
+        .account-card.clickable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            border: 2px solid #e91e63;
+        }
+
+        .account-card.clickable::before {
+            content: "Tap for details";
+            position: absolute;
+            top: -3px;
+            right: 16px;
+            background: #e91e63;
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 0 0 8px 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .account-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .arrow {
+            color: #e91e63;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .account-balance {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .cash-amount {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .pension-card {
+            border: 2px solid #e91e63;
+            background: linear-gradient(135deg, #fff 0%, #fef7f7 100%);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-top: 1px solid #eee;
+            padding: 16px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: #666;
+        }
+
+        .nav-item.active {
+            color: #e91e63;
+        }
+
+        .nav-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+            fill: currentColor;
+        }
+
+        .nav-label {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 360px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-section {
+            margin-bottom: 24px;
+        }
+
+        .modal-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .modal-section p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .modal-links {
+            list-style: none;
+        }
+
+        .modal-links li {
+            margin-bottom: 8px;
+        }
+
+        .modal-links a {
+            color: #e91e63;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+        }
+
+        .modal-links a:hover {
+            text-decoration: underline;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #e91e63;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .content {
+            padding-bottom: 80px;
+        }
+
+        /* Splash Screen Styles */
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #e91e63 0%, #ad1457 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            animation: splashFadeOut 0.8s ease-in-out 2.5s forwards;
+        }
+
+        .splash-screen.hidden {
+            display: none;
+        }
+
+        .splash-logo {
+            color: white;
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            text-align: center;
+            animation: logoFloat 2s ease-in-out infinite;
+        }
+
+        .splash-tagline {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 18px;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .splash-loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes splashFadeOut {
+            0% { opacity: 1; }
+            100% { opacity: 0; visibility: hidden; }
+        }
+
+        /* Delayed appearance for tap indicator */
+        .account-card.clickable::before {
+            animation: delayedAppear 0.5s ease-in-out 8s forwards;
+            opacity: 0;
+        }
+
+        @keyframes delayedAppear {
+            0% { opacity: 0; transform: translateY(-10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main content initially hidden */
+        .main-content {
+            opacity: 0;
+            animation: contentFadeIn 0.8s ease-in-out 2.8s forwards;
+        }
+
+        @keyframes contentFadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="splash-logo">AJBell Invest</div>
+        <div class="splash-tagline">introducing PLAY (Personal Learning Assistant for You)</div>
+        <div class="splash-loader"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <div class="content">
+        <div class="header">
+            <!-- <div class="time">14:40</div> -->
+            <div class="welcome">Welcome back</div>
+            <div class="name">Alice</div>
+            
+            <div class="total-section">
+                <div class="accounts-label">Your accounts</div>
+                <div class="total-amount">£10,000</div>
+            </div>
+        </div>
+
+        <div style="padding: 0 20px;">
+            <div class="account-card clickable" data-account="investment-isa">
+                <div class="account-header">
+                    <div class="account-name">Investment ISA</div>
+                    <div class="arrow">›</div>
+                </div>
+                <div class="account-balance">£0.00</div>
+                <div class="cash-amount">Cash: £8,500.00</div>
+            </div>
+
+            <div class="account-card">
+                <div class="account-header">
+                    <div class="account-name">Lifetime ISA</div>
+                    <div class="arrow">›</div>
+                </div>
+                <div class="account-balance">£0.00</div>
+                <div class="cash-amount">Cash: £0.0</div>
+            </div>
+
+            <div class="account-card">
+                <div class="account-header">
+                    <div class="account-name">Pension</div>
+                    <div class="arrow">›</div>
+                </div>
+                <div class="account-balance">£1,500.00</div>
+                <div class="cash-amount">Cash: £0.00</div>
+            </div>
+
+            <div class="account-card">
+                <div class="account-header">
+                    <div class="account-name">General investment account</div>
+                    <div class="arrow">›</div>
+                </div>
+                <div class="account-balance">£0.0</div>
+                <div class="cash-amount">Cash: £0.00</div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <svg class="nav-icon" viewBox="0 0 24 24">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+            <span class="nav-label">Dashboard</span>
+        </a>
+        <a href="#" class="nav-item">
+            <svg class="nav-icon" viewBox="0 0 24 24">
+                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/>
+            </svg>
+            <span class="nav-label">Invest</span>
+        </a>
+    </div>
+
+    <div class="modal" id="accountModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Account Details</div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="loading" id="loadingState">
+                    <div class="spinner"></div>
+                    <div>Loading account details...</div>
+                </div>
+                <div id="modalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fetch account details from API
+        async function fetchAccountDetails(accountType) {
+            // Show loading state
+            showLoading(true);
+            
+            try {
+                if (accountType === 'investment-isa') {
+                    // Make API call to localhost:8002/pla for Investment ISA
+                    console.log('Making API call to localhost:8002/pla for Investment ISA');
+                    
+                    const response = await fetch('http://localhost:8002/pla', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            user_id: '1'
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const apiData = await response.json();
+                    
+                    // Log the returned data to see its format
+                    console.log('API Response from localhost:8002/pla:', apiData);
+                    
+                    // Parse the API response which should contain {content: "", link: ""}
+                    const content = apiData.content || 'No content available';
+                    const link = apiData.link || apiData.links || [];
+                    
+                    // Convert content to string if it's an object
+                    const contentText = typeof content === 'string' ? content : JSON.stringify(content);
+                    
+                    // Return the data in a user-friendly format
+                    return {
+                        title: 'Investment ISA - P.L.A.Y Assistant',
+                        content: [
+                            {
+                                type: 'section',
+                                title: 'Personalized Learning Recommendation',
+                                text: content
+                            }
+                        ],
+                        links: Array.isArray(link) ? link : (link ? [link] : [])
+                    };
+                } else {
+                    // Mock response for other account types
+                    const mockResponse = {
+                        title: 'Account Details',
+                        content: [
+                            {
+                                type: 'section',
+                                title: 'Account Overview',
+                                text: 'Account details for this account type are not yet available.'
+                            }
+                        ],
+                        links: []
+                    };
+                    
+                    return mockResponse;
+                }
+                
+            } catch (error) {
+                console.error('Failed to fetch account details:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    stack: error.stack
+                });
+                
+                return {
+                    title: 'Error',
+                    content: [
+                        { 
+                            type: 'section', 
+                            title: 'Connection Error', 
+                            text: `Failed to load account details. Error: ${error.message}. Make sure the API server is running on localhost:8001.` 
+                        }
+                    ],
+                    links: []
+                };
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loadingState');
+            const content = document.getElementById('modalContent');
+            
+            if (show) {
+                loading.style.display = 'block';
+                content.style.display = 'none';
+            } else {
+                loading.style.display = 'none';
+                content.style.display = 'block';
+            }
+        }
+
+        async function openModal(accountType) {
+            const modal = document.getElementById('accountModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalContent = document.getElementById('modalContent');
+            
+            // Show modal
+            modal.classList.add('show');
+            modalTitle.textContent = 'Loading...';
+            modalContent.innerHTML = '';
+            
+            // Fetch and display content
+            const data = await fetchAccountDetails(accountType);
+            
+            modalTitle.textContent = data.title;
+            
+            let contentHtml = '';
+            
+            // Render content sections with better formatting for user-friendly content
+            data.content.forEach(section => {
+                contentHtml += `
+                    <div class="modal-section">
+                        <h3>${section.title}</h3>
+                        <div style="line-height: 1.6; color: #333; background: #f9f9f9; padding: 16px; border-radius: 8px; border-left: 4px solid #e91e63;">${section.text}</div>
+                    </div>
+                `;
+            });
+            
+            // Render links if available
+            if (data.links && data.links.length > 0) {
+                contentHtml += `
+                    <div class="modal-section">
+                        <h3>Learn More</h3>
+                        <ul class="modal-links">
+                            ${data.links.map(link => {
+                                // Handle different link formats
+                                if (typeof link === 'string') {
+                                    return `<li><a href="${link}" target="_blank">View Resource</a></li>`;
+                                } else if (link.url && link.text) {
+                                    return `<li><a href="${link.url}" target="_blank">${link.text}</a></li>`;
+                                } else {
+                                    return `<li><a href="${link}" target="_blank">View Resource</a></li>`;
+                                }
+                            }).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            modalContent.innerHTML = contentHtml;
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('accountModal');
+            modal.classList.remove('show');
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hide splash screen and show main content
+            setTimeout(() => {
+                const splashScreen = document.getElementById('splashScreen');
+                splashScreen.classList.add('hidden');
+            }, 3300); // Hide splash after animations complete
+
+            // Add click handlers to clickable cards
+            const clickableCards = document.querySelectorAll('.account-card.clickable');
+            clickableCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const accountType = this.dataset.account;
+                    openModal(accountType);
+                });
+            });
+
+            // Close modal when clicking outside
+            document.getElementById('accountModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
