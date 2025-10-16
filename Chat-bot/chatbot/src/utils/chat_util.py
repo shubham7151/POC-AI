@@ -17,6 +17,7 @@ class ChatUtil:
             .limit(10)
             .all()
         )
+        logger.info(f"chat history {chat_message_history}")
         return chat_message_history
             
 
@@ -64,6 +65,7 @@ class ChatUtil:
             "content":"you are a chat bot name babbu"
         }
         messages.append(system_prompt)
-        for chat in chat_history:
+        for chat in reversed(chat_history):
             messages.append(self.generate_message(chat.content,chat.role))
+        logger.info(f"openai fomat : {messages}")
         return messages

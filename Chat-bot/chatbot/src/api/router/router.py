@@ -14,6 +14,9 @@ router = APIRouter()
 def new_chat(
     chat_service: ChatService = Depends(get_chat_service)
 ):
+    """
+    Initialize a new chat session and return the session ID.
+    """
     logger.info(f"New Chat Service started : Start")
     try:
         response = chat_service.new_chat()
@@ -34,6 +37,9 @@ def new_message(
     message: Message,
     chat_service: ChatService = Depends(get_chat_service)
 ):
+    """
+    Process a new message in an existing chat session and return the assistant's response.
+    """
     logger.info("chat message service started: Start")
     try:
         response = chat_service.new_message(message=message)
@@ -45,3 +51,29 @@ def new_message(
             detail="Internal server error"
         )
 
+@router.get("/chat/{session_id}", tags=["chat"])
+def get_chat_history(
+    session_id: str,
+    chat_service: ChatService = Depends(get_chat_service)
+):
+    """
+    Retrieve the chat history for a given session ID.
+    """
+    logger.info(f"Get Chat History Service started for session_id: {session_id}")
+    try:
+        chat_history = chat_service.chat_util.get_chat_history(session_id)
+        logger.info(f"Get Chat History Service completed for session_id: {session_id}")
+        chat_content = [
+            {
+                "role":chat.role,
+                "content":chat.content
+            }
+            for chat in reversed(chat_history)
+        ]
+        return chat_content
+    except Exception as e:
+        logger.error(f"Get Chat History error {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error"
+        )
