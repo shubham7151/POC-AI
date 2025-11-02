@@ -9,7 +9,7 @@ services:
     
   
   postgres:
-    image: postgres:13
+    image: ankane/pgvector:latest
     container_name: postgres
     environment:
       POSTGRES_USER: postgres_user
