@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from src.api.dependencies.pydantic_model import (
     Message, 
     NewChat,
@@ -73,6 +73,49 @@ def get_chat_history(
         return chat_content
     except Exception as e:
         logger.error(f"Get Chat History error {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error"
+        )
+    
+@router.post("/document/add", tags=["document"])
+def add_documents(
+    uploaded_file: UploadFile = File(...),
+):
+    """
+    Endpoint to add documents to the system.
+    """
+    logger.info("Add Documents Service started: Start")
+    try:
+        fileNmae = uploaded_file.filename
+        logger.info(f"Uploaded file name: {fileNmae}")
+        return {"detail": "Documents added successfully"}
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        logger.error(f"Add Documents error {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error"
+        )
+
+@router.get("/document/embedd", tags=["document"])
+def get_document_embeddings(
+    text: str,
+    chat_service: ChatService = Depends(get_chat_service)
+):
+    """
+    Endpoint to get document embeddings for a given text.
+    """
+    logger.info("Get Document Embeddings Service started: Start")
+    try:
+        embeddings = chat_service.llm.get_embeddings(text)
+        logger.info("Get Document Embeddings Service completed: Success")
+        return {"embeddings": embeddings}
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        logger.error(f"Get Document Embeddings error {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail="Internal server error"
